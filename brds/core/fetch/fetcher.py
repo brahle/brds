@@ -4,13 +4,20 @@ from typing import Tuple as _Tuple
 from typing import Union as _Union
 
 from ..fs.writer import FileWriter as _FileWriter
+from ..importer.importer import Importer as _Importer
 from ..logger import get_logger as _get_logger
-from .importer import Importer as _Importer
 
 LOGGER = _get_logger()
 
 
 class Fetcher:
+    """
+    Fetches the given list of urls using the given importer and stores the result using the given
+    writer.
+
+    TODO: parse the domain from the url to set the prefix
+    """
+
     def __init__(
         self: "Fetcher",
         importer: _Importer,
