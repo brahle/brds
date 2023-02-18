@@ -4,6 +4,12 @@ Changelog
 
 (unreleased)
 ------------
+- Updating version (#4) [Bruno Rahle]
+
+
+0.0.3 (2023-02-18)
+------------------
+- Release: version 0.0.3 🚀 [brahle]
 - Fixing the docs (#3) [Bruno Rahle]
 
 
