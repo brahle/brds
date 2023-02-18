@@ -5,6 +5,7 @@ from typing import Any as _Any
 from typing import Optional as _Optional
 from typing import Type as _Type
 from typing import TypeVar as _TypeVar
+from typing import Union as _Union
 
 from pandas import DataFrame as _DataFrame
 
@@ -13,6 +14,7 @@ from ..logger import get_logger as _get_logger
 
 T = _TypeVar("T", bound="FileWriter")
 LOGGER = _get_logger()
+WriterTypes = _Union[_DataFrame, _Any]
 
 
 class FileWriter:
