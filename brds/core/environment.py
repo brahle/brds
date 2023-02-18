@@ -26,4 +26,6 @@ def reader_folder_path() -> str:
 
 
 def vault_token() -> str:
-    return _environ["VAULT_TOKEN"]
+    if "VAULT_TOKEN" in _environ:
+        return _environ["VAULT_TOKEN"]
+    return ""
