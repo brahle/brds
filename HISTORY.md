@@ -4,6 +4,15 @@ Changelog
 
 (unreleased)
 ------------
+
+Fix
+~~~
+- Release (#2) [Bruno Rahle]
+
+
+0.0.1 (2023-02-18)
+------------------
+- Release: version 0.0.1 🚀 [brahle]
 - Feat: Initial version (#1) [Bruno Rahle]
 
   * Initial version of the brds
