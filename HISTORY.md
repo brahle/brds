@@ -2,12 +2,18 @@ Changelog
 =========
 
 
-0.1.2 (2021-08-14)
-------------------
-- Fix release, README and windows CI. [Bruno Rocha]
-- Release: version 0.1.0. [Bruno Rocha]
+(unreleased)
+------------
+- Feat: Initial version (#1) [Bruno Rahle]
+
+  * Initial version of the brds
+
+  * Fixing license
+
+  * Adding fetcher and importer
+
+  * Fixing the code
+- ✅ Ready to clone and code. [brahle]
+- Initial commit. [Bruno Rahle]
 
 
-0.1.0 (2021-08-14)
-------------------
-- Add release command. [Bruno Rocha]
