@@ -27,14 +27,14 @@ install:          ## Install the project in dev mode.
 .PHONY: fmt
 fmt:              ## Format code using black & isort.
 	$(ENV_PREFIX)isort brds/
-	$(ENV_PREFIX)black -l 79 brds/
-	$(ENV_PREFIX)black -l 79 tests/
+	$(ENV_PREFIX)black -l 119 brds/
+	$(ENV_PREFIX)black -l 119 tests/
 
 .PHONY: lint
 lint:             ## Run pep8, black, mypy linters.
-	$(ENV_PREFIX)flake8 brds/
-	$(ENV_PREFIX)black -l 79 --check brds/
-	$(ENV_PREFIX)black -l 79 --check tests/
+	$(ENV_PREFIX)flake8 --max-line-length 120 --ignore=E203 brds/
+	$(ENV_PREFIX)black -l 119 --check brds/
+	$(ENV_PREFIX)black -l 119 --check tests/
 	$(ENV_PREFIX)mypy --ignore-missing-imports brds/
 
 .PHONY: test
