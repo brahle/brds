@@ -9,3 +9,5 @@ mypy
 pandas
 python-dotenv
 python-json-logger
+requests
+types-requests
