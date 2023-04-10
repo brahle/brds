@@ -1,4 +1,5 @@
 from .core import (
+    DatasetInfo,
     Fetcher,
     FileReader,
     FileWriter,
@@ -6,20 +7,25 @@ from .core import (
     Importer,
     Vault,
     fload,
+    get_dataset_files,
     get_logger,
+    list_datasets,
     set_logging_to_debug,
     set_logging_to_info,
     set_logging_to_warn,
 )
 
 __all__ = [
+    "DatasetInfo",
     "Fetcher",
     "FileReader",
     "FileWriter",
     "fload",
+    "get_dataset_files",
     "get_logger",
     "GunzipImporter",
     "Importer",
+    "list_datasets",
     "set_logging_to_debug",
     "set_logging_to_info",
     "set_logging_to_warn",
