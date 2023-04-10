@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datasets</title>
+</head>
+<body>
+    <h1>Datasets</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Module</th>
+                <th>Dataset</th>
+                <th>Latest File Timestamp</th>
+                <th>Old Versions</th>
+                <th>File Size</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dataset_info in modules %}
+                <tr>
+                    <td>{{ dataset_info.module }}</td>
+                    <td>
+                        <a href="/html/{{ dataset_info.module }}/{{ dataset_info.name }}">{{ dataset_info.name }}</a>
+                        (<a href="/dataset/{{ dataset_info.module }}/{{ dataset_info.name }}">all files</a>)
+                    </td>
+                    <td>{{ dataset_info.timestamp }}</td>
+                    <td>{{ dataset_info.old_versions }}</td>
+                    <td>{{ dataset_info.pretty_file_size }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
