@@ -4,6 +4,12 @@ Changelog
 
 (unreleased)
 ------------
+- Fixing packaging. [brahle]
+
+
+0.2.3 (2023-04-10)
+------------------
+- Release: version 0.2.3 🚀 [brahle]
 - Adding .typed file. [brahle]
 
 
