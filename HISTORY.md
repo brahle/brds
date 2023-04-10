@@ -4,6 +4,12 @@ Changelog
 
 (unreleased)
 ------------
+- Also tagging the version from the ref. [brahle]
+
+
+0.2.7 (2023-04-10)
+------------------
+- Release: version 0.2.7 🚀 [brahle]
 - Fixing the publishing. [brahle]
 
 
