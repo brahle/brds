@@ -43,7 +43,7 @@ setup(
         "console_scripts": ["brds = brds.__main__:main"]
     },
     package_data={
-        'brds': ['brds/templates/**.html']
+        'brds': ['brds/templates/**.html', "py.typed"],
     },
     extras_require={"test": read_requirements("requirements-test.txt")},
 )
