@@ -4,6 +4,12 @@ Changelog
 
 (unreleased)
 ------------
+- Adding pandas stubs. [brahle]
+
+
+0.2.4 (2023-04-10)
+------------------
+- Release: version 0.2.4 🚀 [brahle]
 - Fixing packaging. [brahle]
 
 
