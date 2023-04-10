@@ -14,7 +14,7 @@ def get_dataset_files(dataset_name: str) -> List[Tuple[str, List[Path]]]:
         if not file_path.is_file():
             continue
         timestamp_str = str(file_path.parent)
-        grouped_files[timestamp_str].append(file_path)
+        grouped_files[timestamp_str].append(file_path.relative_to(root))
 
     # Sort by timestamp descending
     sorted_grouped_files = sorted(grouped_files.items(), key=lambda x: x[0], reverse=True)

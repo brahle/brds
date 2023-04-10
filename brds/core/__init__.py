@@ -1,4 +1,5 @@
 from .datasets import DatasetInfo, get_dataset_files, list_datasets
+from .environment import reader_folder_path, root_folder_path, vault_token, writer_folder_path
 from .fetch import Fetcher
 from .fs import FileReader, FileWriter, fload
 from .importer import GunzipImporter, Importer
@@ -16,8 +17,12 @@ __all__ = [
     "GunzipImporter",
     "Importer",
     "list_datasets",
+    "reader_folder_path",
+    "root_folder_path",
     "set_logging_to_debug",
     "set_logging_to_info",
     "set_logging_to_warn",
     "Vault",
+    "vault_token",
+    "writer_folder_path",
 ]

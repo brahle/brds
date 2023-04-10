@@ -10,9 +10,13 @@ from .core import (
     get_dataset_files,
     get_logger,
     list_datasets,
+    reader_folder_path,
+    root_folder_path,
     set_logging_to_debug,
     set_logging_to_info,
     set_logging_to_warn,
+    vault_token,
+    writer_folder_path,
 )
 
 __all__ = [
@@ -26,8 +30,12 @@ __all__ = [
     "GunzipImporter",
     "Importer",
     "list_datasets",
+    "reader_folder_path",
+    "root_folder_path",
     "set_logging_to_debug",
     "set_logging_to_info",
     "set_logging_to_warn",
     "Vault",
+    "vault_token",
+    "writer_folder_path",
 ]

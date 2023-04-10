@@ -1,3 +1,4 @@
+from pathlib import Path as _Path
 from typing import Any, Dict
 
 import pandas as pd
@@ -5,7 +6,7 @@ from fastapi import FastAPI, HTTPException, Path, Request, Response
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from brds import fload, get_dataset_files, list_datasets
+from brds import fload, get_dataset_files, list_datasets, reader_folder_path
 
 app = FastAPI()
 
@@ -47,7 +48,8 @@ async def get_datasets(request: Request) -> Response:
 
 @app.get("/download/{path:path}", response_class=FileResponse)
 async def download_file(path: str):
-    return FileResponse(path, filename=path.split("/")[-1], media_type="application/octet-stream")
+    root = _Path(reader_folder_path())
+    return FileResponse(root.joinpath(path), filename=path.split("/")[-1], media_type="application/octet-stream")
 
 
 @app.get("/dataset/{dataset_name:path}", response_class=HTMLResponse)
