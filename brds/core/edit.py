@@ -1,8 +1,9 @@
 """Find and replace utilities."""
 
-from pandas import DataFrame, Index, Series
-from typing import Callable, Iterable, Union
 from collections import namedtuple
+from typing import Callable, Iterable, Union
+
+from pandas import DataFrame, Index, Series
 
 ExactMatch = namedtuple("ExactMatch", "column value")
 Replacement = namedtuple("Replacement", "column value")
@@ -32,9 +33,7 @@ def finder(exact_match: MatcherT) -> Callable[[DataFrame], DataFrame]:
     return _find
 
 
-def replace(
-    df: DataFrame, index: Index, replacements: Iterable[Replacement]
-) -> DataFrame:
+def replace(df: DataFrame, index: Index, replacements: Iterable[Replacement]) -> DataFrame:
     """Replace the specified columns with specified values at the given index."""
     for column, value in replacements:
         df.loc[index, [column]] = value

@@ -1,5 +1,5 @@
 from .datasets import DatasetInfo, get_dataset_files, list_datasets
-from .edit import find, finder, replace, replacer, find_and_replace, find_and_replacer
+from .edit import find, find_and_replace, find_and_replacer, finder, replace, replacer
 from .environment import reader_folder_path, root_folder_path, vault_token, writer_folder_path
 from .fetch import Fetcher
 from .fs import FileReader, FileWriter, fload
