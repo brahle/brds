@@ -2,6 +2,21 @@ Changelog
 =========
 
 
+(unreleased)
+------------
+- Merge branch 'main' of github.com:brahle/brds into main. [brahle]
+- Br/updates (#6) [Bruno Rahle]
+
+  * Adding FastAPI app to show the datasets
+
+  * Updates to the container
+
+
+0.1.0 (2023-04-10)
+------------------
+- Release: version 0.1.0 🚀 [brahle]
+
+
 0.0.5 (2023-02-18)
 ------------------
 - Release: version 0.0.5 🚀 [brahle]
