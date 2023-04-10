@@ -2,8 +2,9 @@ Changelog
 =========
 
 
-(unreleased)
-------------
+0.0.5 (2023-02-18)
+------------------
+- Release: version 0.0.5 🚀 [brahle]
 - Feat: Adding gunzip imporer (#5) [Bruno Rahle]
 
 
