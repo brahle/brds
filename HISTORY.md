@@ -4,6 +4,12 @@ Changelog
 
 (unreleased)
 ------------
+- Adding .typed file. [brahle]
+
+
+0.2.2 (2023-04-10)
+------------------
+- Release: version 0.2.2 🚀 [brahle]
 - Exposing some additional items. [brahle]
 
 
