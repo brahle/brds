@@ -4,6 +4,13 @@ Changelog
 
 (unreleased)
 ------------
+- Fixing return types. [brahle]
+- Publish to docker. [brahle]
+
+
+0.2.5 (2023-04-10)
+------------------
+- Release: version 0.2.5 🚀 [brahle]
 - Adding pandas stubs. [brahle]
 
 
