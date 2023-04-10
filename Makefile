@@ -39,7 +39,7 @@ lint:             ## Run pep8, black, mypy linters.
 
 .PHONY: test
 test: lint        ## Run tests and generate coverage report.
-	$(ENV_PREFIX)pytest -v --cov-config .coveragerc --cov=brds -l --tb=short --maxfail=1 tests/
+	$(ENV_PREFIX)pytest -v --cov-config .coveragerc --cov=brds -l --tb=short --doctest-modules --maxfail=1 tests/ brds/
 	$(ENV_PREFIX)coverage xml
 	$(ENV_PREFIX)coverage html
 
@@ -115,8 +115,24 @@ switch-to-poetry: ## Switch to poetry package manager.
 init:             ## Initialize the project based on an application template.
 	@./.github/init.sh
 
+.PHONY: docker-build
+docker-build: test
+	@docker build -t brds -f Containerfile .
+
+.PHONY: docker-run
+docker-run:
+	@docker run -it --rm \
+		-p 8080:8080 \
+		-v "$(HOME)/data:/data" \
+		-e VAULT_TOKEN=$(VAULT_TOKEN) \
+		-e VAULT_ADDRESS=http://host.docker.internal:8200 \
+		brds
+
+.PHONY: docker
+docker: docker-build docker-run
+
+.PHONY: run-server
+run-server:
+	@$(ENV_PREFIX)python -m uvicorn brds.app:app --host 0.0.0.0 --port 8080 --reload
 
 # This project has been generated from rochacbruno/python-project-template
-# __author__ = 'rochacbruno'
-# __repo__ = https://github.com/rochacbruno/python-project-template
-# __sponsor__ = https://github.com/sponsors/rochacbruno/
