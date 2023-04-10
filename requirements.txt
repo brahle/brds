@@ -9,6 +9,7 @@ hvac
 jinja2
 mypy
 pandas
+pandas-stubs
 pyarrow
 python-dotenv
 python-json-logger
