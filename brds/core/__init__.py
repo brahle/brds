@@ -1,5 +1,15 @@
 from .datasets import DatasetInfo, get_dataset_files, list_datasets
-from .edit import find, find_and_replace, find_and_replacer, finder, replace, replacer
+from .edit import (
+    ExactMatch,
+    FindCallBack,
+    Replacement,
+    find,
+    find_and_replace,
+    find_and_replacer,
+    finder,
+    replace,
+    replacer,
+)
 from .environment import reader_folder_path, root_folder_path, vault_token, writer_folder_path
 from .fetch import Fetcher
 from .fs import FileReader, FileWriter, fload
@@ -9,12 +19,14 @@ from .vault import Vault
 
 __all__ = [
     "DatasetInfo",
+    "ExactMatch",
     "Fetcher",
     "FileReader",
     "FileWriter",
     "find_and_replace",
     "find_and_replacer",
     "find",
+    "FindCallBack",
     "finder",
     "fload",
     "get_dataset_files",
@@ -24,6 +36,7 @@ __all__ = [
     "list_datasets",
     "reader_folder_path",
     "replace",
+    "Replacement",
     "replacer",
     "root_folder_path",
     "set_logging_to_debug",
