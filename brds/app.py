@@ -32,7 +32,7 @@ async def read_raw(filename: str = Path(..., regex=r"[\w\-/]+")) -> Dict[str, An
 
 
 @app.get("/html/{filename:path}", response_class=HTMLResponse)
-async def read_html(filename: str = Path(..., regex=r"[\w\-/]+")) -> Response:
+async def read_html(filename: str = Path(..., regex=r"[\w\-/]+")) -> str:
     try:
         df: pd.DataFrame = fload(filename)
         return df.to_html()
