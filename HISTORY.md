@@ -4,6 +4,7 @@ Changelog
 
 (unreleased)
 ------------
+- Release: version 0.1.0 🚀 [brahle]
 - Merge branch 'main' of github.com:brahle/brds into main. [brahle]
 - Br/updates (#6) [Bruno Rahle]
 
