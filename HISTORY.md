@@ -4,6 +4,12 @@ Changelog
 
 (unreleased)
 ------------
+- Fixing the publishing. [brahle]
+
+
+0.2.6 (2023-04-10)
+------------------
+- Release: version 0.2.6 🚀 [brahle]
 - Fixing return types. [brahle]
 - Publish to docker. [brahle]
 
