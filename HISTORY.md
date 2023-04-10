@@ -4,6 +4,12 @@ Changelog
 
 (unreleased)
 ------------
+- Exposing some additional items. [brahle]
+
+
+0.2.1 (2023-04-10)
+------------------
+- Release: version 0.2.1 🚀 [brahle]
 - Fixing the formatting. [brahle]
 
 
