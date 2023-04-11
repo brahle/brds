@@ -15,6 +15,7 @@ from .fetch import Fetcher
 from .fs import FileReader, FileWriter, fload
 from .importer import GunzipImporter, Importer
 from .logger import get_logger, set_logging_to_debug, set_logging_to_info, set_logging_to_warn
+from .security import get_safe_path
 from .vault import Vault
 
 __all__ = [
@@ -31,6 +32,7 @@ __all__ = [
     "fload",
     "get_dataset_files",
     "get_logger",
+    "get_safe_path",
     "GunzipImporter",
     "Importer",
     "list_datasets",
