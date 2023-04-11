@@ -4,6 +4,12 @@ Changelog
 
 (unreleased)
 ------------
+- Preventing exploits. [brahle]
+
+
+0.2.8 (2023-04-10)
+------------------
+- Release: version 0.2.8 🚀 [brahle]
 - Also tagging the version from the ref. [brahle]
 
 
