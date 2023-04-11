@@ -4,6 +4,7 @@ Changelog
 
 (unreleased)
 ------------
+- Release: version 0..0 🚀 [brahle]
 - Preventing exploits. [brahle]
 
 
