@@ -3,12 +3,29 @@ from typing import Any, Dict
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Path, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from brds import fload, get_dataset_files, list_datasets, get_safe_path
+from brds import fload, get_dataset_files, get_safe_path, list_datasets
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+    "https://localhost:3000",
+    "http://localhost:8080",
+    "https://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 templates = Jinja2Templates(directory="./brds/templates")
 
@@ -23,10 +40,12 @@ async def read_as_dict(filename: str = Path(..., regex=r"[\w\-/]+")) -> Dict[str
 
 
 @app.get("/raw/{filename:path}")
-async def read_raw(filename: str = Path(..., regex=r"[\w\-/]+")) -> Dict[str, Any]:
+async def read_raw(filename: str = Path(..., regex=r"[\w\-/]+")) -> Any:
     try:
         df = fload(str(get_safe_path(filename)))
-        return df.to_dict(orient="records")
+        if isinstance(df, pd.DataFrame):
+            return df.to_dict(orient="records")
+        return df
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=f"Parquet file '{filename}' not found") from exc
 

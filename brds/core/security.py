@@ -1,7 +1,8 @@
 from pathlib import Path as _Path
 
-from brds.core.environment import reader_folder_path
 from fastapi import HTTPException
+
+from brds.core.environment import reader_folder_path
 
 
 def get_safe_path(file_path: str) -> _Path:
