@@ -4,6 +4,15 @@ Changelog
 
 (unreleased)
 ------------
+- Removing unsupported flag. [brahle]
+- Fixing the files. [brahle]
+- Removing codecov which is deleted. [brahle]
+- CORS. [brahle]
+
+
+0.3.0 (2023-04-11)
+------------------
+- Release: version 0.3.0 🚀 [brahle]
 - Release: version 0..0 🚀 [brahle]
 - Preventing exploits. [brahle]
 
