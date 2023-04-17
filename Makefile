@@ -39,7 +39,7 @@ lint:             ## Run pep8, black, mypy linters.
 
 .PHONY: test
 test: lint        ## Run tests.
-	$(ENV_PREFIX)pytest -v --cov=brds -l --tb=short --doctest-modules --maxfail=1 tests/ brds/
+	$(ENV_PREFIX)pytest -v -l --tb=short --doctest-modules --maxfail=1 tests/ brds/
 
 .PHONY: watch
 watch:            ## Run tests on every change.
