@@ -38,10 +38,8 @@ lint:             ## Run pep8, black, mypy linters.
 	$(ENV_PREFIX)mypy --ignore-missing-imports brds/
 
 .PHONY: test
-test: lint        ## Run tests and generate coverage report.
-	$(ENV_PREFIX)pytest -v --cov-config .coveragerc --cov=brds -l --tb=short --doctest-modules --maxfail=1 tests/ brds/
-	$(ENV_PREFIX)coverage xml
-	$(ENV_PREFIX)coverage html
+test: lint        ## Run tests.
+	$(ENV_PREFIX)pytest -v --cov=brds -l --tb=short --doctest-modules --maxfail=1 tests/ brds/
 
 .PHONY: watch
 watch:            ## Run tests on every change.
