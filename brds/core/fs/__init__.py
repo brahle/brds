@@ -1,4 +1,4 @@
 from .reader import FileReader, fload
-from .writer import FileWriter
+from .writer import FileWriter, WriterTypes
 
-__all__ = ["FileReader", "FileWriter", "fload"]
+__all__ = ["FileReader", "FileWriter", "fload", "WriterTypes"]
