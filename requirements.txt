@@ -5,9 +5,12 @@
 # You can also run `make switch-to-poetry` to use the poetry package manager.
 
 fastapi>=0.94.1
+html5lib
 hvac
 jinja2
+lxml
 mypy
+numpy
 pandas
 pandas-stubs
 pyarrow

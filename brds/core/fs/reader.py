@@ -7,7 +7,7 @@ from typing import TextIO as _TextIO
 from typing import Type as _Type
 from typing import TypeVar as _TypeVar
 
-from pandas import read_parquet as _read_parquet
+from pandas import read_parquet as _read_parquet, read_html as _read_html
 
 from ..environment import reader_folder_path as _reader_folder_path
 from ..logger import get_logger as _get_logger
@@ -66,6 +66,11 @@ class FileReader:
                 return _load(input_file)
         if new_file_name.endswith(".parquet"):
             return _read_parquet(new_file_name)
+        if new_file_name.endswith(".html"):
+            try:
+                return _read_html(new_file_name)
+            except ValueError as ve:
+                raise ValueError(f"Error parsing HTML from '{new_file_name}'") from ve
         raise NotImplementedError(f"Do not know how to load the file `{filename}`: `{new_file_name}`")
 
 
