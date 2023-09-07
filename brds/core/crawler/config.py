@@ -1,11 +1,11 @@
-from copy import deepcopy
-from typing import Any, Iterable, List, Tuple, Dict
 import os
+from copy import deepcopy
+from typing import Any, Dict, Iterable, List, Tuple
 
 import yaml
 
 
-def find_md_files(dir: str) -> Tuple[str, str]:
+def find_md_files(dir: str) -> Iterable[Tuple[str, str]]:
     for a, b, c in os.walk(dir):
         for file in c:
             if file.endswith(".md"):
@@ -13,22 +13,23 @@ def find_md_files(dir: str) -> Tuple[str, str]:
 
 
 def get_configs(file_name: str) -> Iterable[List[str]]:
-    config = []
+    config: List[str] = []
     in_config = False
 
     with open(file_name, "r") as file:
         for line in file:
             clean = line.strip()
-            if clean == '```yaml':
+            if clean == "```yaml":
                 in_config = True
                 continue
             if in_config:
-                if clean == '```':
+                if clean == "```":
                     in_config = False
                     yield config
                     config = []
                     continue
                 config.append(line)
+
 
 def get_all_configs(root: str) -> Any:
     for file_name, full_path in find_md_files(root):
@@ -49,17 +50,17 @@ def remove_default_params(params: Dict[str, Any]) -> Dict[str, Any]:
     return ret
 
 
-class ConfigStore():
+class ConfigStore:
     def __init__(self: "ConfigStore", root: str) -> None:
         self.root = root
         self.configs = list(get_all_configs(root))
 
-        self.name_index = {}
+        self.name_index: Dict[str, Any] = {}
         for config in self.configs:
             assert config["name"] not in self.name_index, f"Duplicate config with name '{config['name']}'"
             self.name_index[config["name"]] = config
 
-        self.type_index = {}
+        self.type_index: Dict[str, Any] = {}
         for config in self.configs:
             if config["type"] not in self.type_index:
                 self.type_index[config["type"]] = []

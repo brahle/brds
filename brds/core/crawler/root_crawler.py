@@ -4,26 +4,26 @@ from os.path import join
 from typing import Any, Dict, Iterable, List, Tuple
 from urllib.parse import urlparse
 
-from brds.core.fs.writer import FileWriter
 from brds.core.crawler.browser_emulator import BrowserEmulator
 from brds.core.crawler.config import ConfigStore, remove_default_params
 from brds.core.crawler.variables import VariableHolder
+from brds.core.fs.writer import FileWriter
 from brds.db.init_db import Database
 
 
-class Crawler():
+class Crawler:
     def __init__(
-            self: "Crawler",
-            configs: ConfigStore,
-            database: Database,
-            browser_emulator: BrowserEmulator,
-            file_writer: FileWriter,
-            name: str,
-            variables: List[str],
-            inputs: List[str],
-            urls: List[Dict[str, Any]],
-            loop_variables: List[str],
-            _filepath: str,
+        self: "Crawler",
+        configs: ConfigStore,
+        database: Database,
+        browser_emulator: BrowserEmulator,
+        file_writer: FileWriter,
+        name: str,
+        variables: List[str],
+        inputs: List[str],
+        urls: List[Dict[str, Any]],
+        loop_variables: List[str],
+        _filepath: str,
     ) -> None:
         self.configs = configs
         self.database = database
@@ -70,7 +70,6 @@ class Crawler():
         return variables["url"] + self.urls[0]["url"].format(**variables.variables)
 
 
-
 class RootCrawler(Crawler):
     TYPE_NAME = "root-crawl"
 
@@ -95,35 +94,43 @@ class RootCrawler(Crawler):
 
     def download(self: "RootCrawler", url: str) -> None:
         url_id = self.database.get_url_id(url)
+        assert url_id is not None
         file_path = get_path_from_url(url)
         print(f"Downloading '{url}' to '{file_path}'")
 
         response = self.browser_emulator.get(url)
         full_path = self.file_writer.write(file_path, response)
-        self.database.register_download(url_id, self.name, self._filepath, file_path, str(full_path), response.status_code)
+        self.database.register_download(
+            url_id,
+            self.name,
+            self._filepath,
+            file_path,
+            str(full_path),
+            response.status_code,
+        )
 
 
-class TemplatedUrl():
+class TemplatedUrl:
     def __init__(self: "TemplatedUrl", database: Database, name: str, url: str, cache: bool) -> None:
         self.name = name
         self.url = url
         self.cache = cache
 
-    def resolve(self: "TemplatedUrl", variables: VariableHolder) -> None:
+    def resolve(self: "TemplatedUrl", variables: VariableHolder) -> str:
         return variables["url"] + self.url.format(**variables.variables)
 
 
 def sanitize_component(component: str) -> str:
-    return ''.join(c if c.isalnum() or c in '-_.' else '_' for c in component)
+    return "".join(c if c.isalnum() or c in "-_." else "_" for c in component)
 
 
 def get_path_from_url(url: str) -> str:
     parsed = urlparse(url)
 
-    domain_path = join(*sanitize_component(parsed.netloc).split('.'))
+    domain_path = join(*sanitize_component(parsed.netloc).split("."))
 
     path = parsed.path if parsed.path else "/"
-    path_components = [sanitize_component(component) for component in path.strip('/').split('/')]
+    path_components = [sanitize_component(component) for component in path.strip("/").split("/")]
 
     base_path = join(domain_path, *path_components)
     return base_path

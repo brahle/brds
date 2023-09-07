@@ -57,7 +57,7 @@ class FileWriter:
         file = self._get_file(name, "index.html")
         LOGGER.debug(f"Writing file '{file}'.")
         with open(file, "w+") as output:
-            file.write_text(data.text)
+            output.write(data.text)
         return file
 
     @classmethod

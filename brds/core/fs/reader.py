@@ -7,7 +7,8 @@ from typing import TextIO as _TextIO
 from typing import Type as _Type
 from typing import TypeVar as _TypeVar
 
-from pandas import read_parquet as _read_parquet, read_html as _read_html
+from pandas import read_html as _read_html
+from pandas import read_parquet as _read_parquet
 
 from ..environment import reader_folder_path as _reader_folder_path
 from ..logger import get_logger as _get_logger

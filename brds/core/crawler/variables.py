@@ -1,6 +1,7 @@
 from typing import Any, Dict, Optional, Union
 
-class VariableHolder():
+
+class VariableHolder:
     def __init__(self: "VariableHolder", variables: Optional[Dict[str, Any]] = None) -> None:
         if variables is None:
             variables = {}

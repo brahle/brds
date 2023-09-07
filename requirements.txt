@@ -17,5 +17,6 @@ pyarrow
 python-dotenv
 python-json-logger
 requests
+types-PyYAML
 types-requests
 uvicorn

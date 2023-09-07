@@ -1,9 +1,9 @@
-from collections import defaultdict
 from typing import Optional
 
-from requests import Session, Response
+from requests import Response, Session
 
 from brds.core.crawler.domain_rate_limiter import DomainRateLimiter
+
 
 class BrowserEmulator:
     def __init__(self, rate_limiter: Optional[DomainRateLimiter] = None):
@@ -11,17 +11,16 @@ class BrowserEmulator:
             rate_limiter = DomainRateLimiter()
         self.rate_limiter = rate_limiter
         self.session = Session()
-        # Set headers like a typical browser
-        self.session.headers.update({
-            'User-Agent': self.user_agent(),
-            'Accept': self.accept_header(),
-            'Accept-Language': 'en-US,en;q=0.5',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1'
-        })
-        self.last_request_time = defaultdict(float)
-
+        self.session.headers.update(
+            {
+                "User-Agent": self.user_agent(),
+                "Accept": self.accept_header(),
+                "Accept-Language": "en-US,en;q=0.5",
+                "DNT": "1",
+                "Connection": "keep-alive",
+                "Upgrade-Insecure-Requests": "1",
+            }
+        )
 
     def get(self, url, **kwargs) -> Response:
         self.rate_limiter.limit(url)
@@ -35,4 +34,7 @@ class BrowserEmulator:
         return "text/html"
 
     def user_agent(self: "BrowserEmulator") -> str:
-        return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.69"
+        return (
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 "
+            + "Safari/537.36 Edg/116.0.1938.69"
+        )
