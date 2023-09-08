@@ -8,6 +8,7 @@ from typing import TypeVar as _TypeVar
 from typing import Union as _Union
 
 from pandas import DataFrame as _DataFrame
+from requests import Response
 
 from ..environment import writer_folder_path as _writer_folder_path
 from ..logger import get_logger as _get_logger
@@ -24,21 +25,24 @@ class FileWriter:
         self._folder.mkdir(parents=True, exist_ok=True)
         self._timestamp_col = timestamp_col
 
-    def write(self: "FileWriter", name: str, data: _Any) -> None:
+    def write(self: "FileWriter", name: str, data: _Any) -> _Path:
         LOGGER.info("Writing file '%s'", name)
         if isinstance(data, _DataFrame):
-            self.write_pandas(name, data)
+            return self.write_pandas(name, data)
+        if isinstance(data, Response):
+            return self.write_response(name, data)
         else:
-            self.write_json(name, data)
+            return self.write_json(name, data)
 
-    def write_pandas(self: "FileWriter", name: str, data: _DataFrame) -> None:
+    def write_pandas(self: "FileWriter", name: str, data: _DataFrame) -> _Path:
         file = self._get_file(name, "data.parquet")
         if self._timestamp_col:
             data[self._timestamp_col] = self._timestamp
         LOGGER.debug(f"Writing file '{file}'.")
         data.to_parquet(file)
+        return file
 
-    def write_json(self: "FileWriter", name: str, data: _Any) -> None:
+    def write_json(self: "FileWriter", name: str, data: _Any) -> _Path:
         file = self._get_file(name, "output.json")
         if self._timestamp_col:
             if not isinstance(data, dict):
@@ -47,6 +51,14 @@ class FileWriter:
         LOGGER.debug(f"Writing file '{file}'.")
         with open(file, "w+") as output:
             _dump(data, output)
+        return file
+
+    def write_response(self: "FileWriter", name: str, data: Response) -> _Path:
+        file = self._get_file(name, "index.html")
+        LOGGER.debug(f"Writing file '{file}'.")
+        with open(file, "w+") as output:
+            output.write(data.text)
+        return file
 
     @classmethod
     def from_environment(cls: _Type[T], **kwargs: _Any) -> T:
