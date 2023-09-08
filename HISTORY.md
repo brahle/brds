@@ -2,8 +2,9 @@ Changelog
 =========
 
 
-(unreleased)
-------------
+0.3.1 (2023-04-17)
+------------------
+- Release: version 0.3.1 🚀 [brahle]
 - Removing unsupported flag. [brahle]
 - Fixing the files. [brahle]
 - Removing codecov which is deleted. [brahle]
