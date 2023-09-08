@@ -4,6 +4,8 @@ Changelog
 
 (unreleased)
 ------------
+- Crawler working with loop variables (#9) [Bruno Rahle]
+- Release: version  🚀 [Bruno Rahle]
 - Release: version  🚀 [Bruno Rahle]
 - Crawler implementation (#8) [Bruno Rahle]
 
