@@ -4,6 +4,16 @@ Changelog
 
 (unreleased)
 ------------
+- Fixing the release script (#10) [Bruno Rahle]
+
+  * Fixing the release script
+
+  * Adding the automatic next version detection
+
+
+0.4.0 (2023-09-08)
+------------------
+- Release: version 0.4.0 🚀 [Bruno Rahle]
 - Release: version  🚀 [Bruno Rahle]
 - Crawler working with loop variables (#9) [Bruno Rahle]
 - Release: version  🚀 [Bruno Rahle]
