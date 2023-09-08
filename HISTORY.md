@@ -2,6 +2,18 @@ Changelog
 =========
 
 
+(unreleased)
+------------
+- Release: version  🚀 [Bruno Rahle]
+- Crawler implementation (#8) [Bruno Rahle]
+
+  * Crawler implementation
+
+  * Fixing lint
+
+  * Storing variables
+
+
 0.3.1 (2023-04-17)
 ------------------
 - Release: version 0.3.1 🚀 [brahle]
