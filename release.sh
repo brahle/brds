@@ -3,8 +3,8 @@
 # Display warning
 echo "WARNING: This operation will create a version tag and push to GitHub"
 
-# Ask for version input
-read -p "Version? (provide the next x.y.z semver) : " TAG
+# Get the next version
+TAG=$(./next_version.sh "$@")
 
 # Display the version
 echo "Releasing version '${TAG}'"
