@@ -41,17 +41,26 @@ class Crawler:
         for input_variables in self.iterate_inputs():
             vars = self.merge_variables(input_variables)
             orig_vars = deepcopy(vars)
+            print("ORIG:", orig_vars.variables)
             for loop_vars in self.iterate_loop_variables(orig_vars):
                 for key, value in zip(self.loop_variables, loop_vars):
-                    vars[key] = value
+                    if key not in ["name", "_filepath"]:
+                        vars[key] = value
+                print("CALLED:", vars.variables)
                 self._process(vars)
 
     def merge_variables(self: "Crawler", input_variables: Tuple[Dict[str, Any]]) -> VariableHolder:
         variables = VariableHolder()
+        variables.extend(
+            {
+                "name": self.name,
+                "_filepath": self._filepath,
+            }
+        )
         for input in input_variables:
-            variables.extend(remove_default_params(input))
+            variables.extend(remove_variable_parameters(input))
         for variable in self.variables:
-            variables.extend(remove_default_params(self.configs[variable]))
+            variables.extend(remove_variable_parameters(self.configs[variable]))
         return variables
 
     def iterate_inputs(self: "Crawler") -> Iterable[Tuple[Dict[str, Any]]]:
@@ -70,6 +79,14 @@ class Crawler:
         return variables["url"] + self.urls[0]["url"].format(**variables.variables)
 
 
+def remove_variable_parameters(params: Dict[str, Any]) -> Dict[str, Any]:
+    copy = deepcopy(params)
+    for key in ["name", "_filepath"]:
+        if key in copy:
+            del copy[key]
+    return copy
+
+
 class RootCrawler(Crawler):
     TYPE_NAME = "root-crawl"
 
@@ -80,6 +97,9 @@ class RootCrawler(Crawler):
     def process(self: "RootCrawler", variables: VariableHolder) -> None:
         for templated_url in self.templated_urls:
             url = templated_url.resolve(variables)
+            url_id = self.database.get_url_id(url)
+            assert url_id is not None
+            self.database.set_vriables(url_id, variables.variables)
             if self.should_load(url, templated_url.cache):
                 self.download(url)
             else:
@@ -117,7 +137,7 @@ class TemplatedUrl:
         self.cache = cache
 
     def resolve(self: "TemplatedUrl", variables: VariableHolder) -> str:
-        return variables["url"] + self.url.format(**variables.variables)
+        return variables["base_url"] + self.url.format(**variables.variables)
 
 
 def sanitize_component(component: str) -> str:

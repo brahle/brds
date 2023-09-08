@@ -1,6 +1,6 @@
 from collections import defaultdict
 from time import sleep, time
-from typing import Dict, Callable, Union
+from typing import Callable, Dict, Union
 from urllib.parse import urlparse
 
 Number = Union[int, float]

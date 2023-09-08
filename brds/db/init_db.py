@@ -1,7 +1,8 @@
 from datetime import time
+from json import dumps
 from os.path import join
 from sqlite3 import Connection, connect
-from typing import TYPE_CHECKING, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Tuple, Type
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -19,7 +20,7 @@ def initialize_db(conn: Connection):
             url TEXT NOT NULL UNIQUE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-    """
+        """
     )
 
     cursor.execute(
@@ -34,9 +35,30 @@ def initialize_db(conn: Connection):
             content_file_path TEXT,
             version_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-    """
+        """
     )
 
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS variables (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            variable_name TEXT,
+            variable_value TEXT,
+            UNIQUE (variable_name, variable_value)
+        )
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS variables_to_web_pages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            web_page_id INTEGER REFERENCES web_pages(id),
+            variable_id INTEGER REFERENCES variables(id),
+            UNIQUE (web_page_id, variable_id)
+        )
+        """
+    )
     conn.commit()
 
 
@@ -163,3 +185,30 @@ class Database:
 
         cursor.execute("""DELETE FROM web_pages WHERE url LIKE ?""", values)
         self.connection.commit()
+
+    def set_vriables(self: "Database", url_id: int, variables: Dict[str, Any]) -> None:
+        assert self.connection is not None
+
+        cursor = self.connection.cursor()
+        cursor.executemany(
+            "INSERT OR IGNORE INTO variables (variable_name, variable_value) VALUES (?, ?)", serialize(variables)
+        )
+        cursor.execute("DELETE FROM variables_to_web_pages WHERE web_page_id = ?", (url_id,))
+        cursor.executemany(
+            """
+            INSERT OR IGNORE INTO variables_to_web_pages (web_page_id, variable_id)
+            SELECT ?, id
+            FROM variables
+            WHERE variable_name = ? AND variable_value = ?
+            """,
+            [(url_id, value[0], value[1]) for value in serialize(variables)],
+        )
+        self.connection.commit()
+
+
+def serialize(variables: Dict[str, Any]) -> Iterable[Tuple[str, str]]:
+    for key, value in variables.items():
+        if isinstance(value, str):
+            yield (key, value)
+        else:
+            yield (key, dumps(value))
