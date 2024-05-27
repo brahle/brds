@@ -11,7 +11,6 @@ from brds.core.fs.writer import FileWriter
 from brds.core.logger import get_logger as _get_logger
 from brds.db.init_db import Database
 
-
 LOGGER = _get_logger()
 
 

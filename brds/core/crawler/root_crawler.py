@@ -1,9 +1,8 @@
 from brds.core.crawler.config import remove_default_params
 from brds.core.crawler.crawler import Crawler
-from brds.core.crawler.variables import VariableHolder
 from brds.core.crawler.templated_url import TemplatedUrl
+from brds.core.crawler.variables import VariableHolder
 from brds.core.logger import get_logger as _get_logger
-
 
 LOGGER = _get_logger()
 

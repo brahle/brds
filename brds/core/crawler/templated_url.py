@@ -10,4 +10,3 @@ class TemplatedUrl:
 
     def resolve(self: "TemplatedUrl", variables: VariableHolder) -> str:
         return variables["base_url"] + self.url.format(**variables.variables)
-
