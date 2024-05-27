@@ -1,4 +1,3 @@
-from os.path import join
 from typing import Iterable
 
 from brds import fload
