@@ -1,12 +1,18 @@
 from copy import deepcopy
 from itertools import product
+from os.path import join
 from typing import Any, Dict, Iterable, List, Optional, Tuple
+from urllib.parse import urlparse
 
 from brds.core.crawler.browser_emulator import BrowserEmulator
 from brds.core.crawler.config import ConfigStore
 from brds.core.crawler.variables import VariableHolder
 from brds.core.fs.writer import FileWriter
+from brds.core.logger import get_logger as _get_logger
 from brds.db.init_db import Database
+
+
+LOGGER = _get_logger()
 
 
 class Crawler:
@@ -78,6 +84,27 @@ class Crawler:
     def url(self: "Crawler", variables: VariableHolder) -> str:
         return variables["url"] + self.urls[0]["url"].format(**variables.variables)
 
+    def download(self: "Crawler", url: str, url_id: int) -> None:
+        file_path = get_path_from_url(url)
+        LOGGER.info(f"Downloading '{url}' to '{file_path}'")
+
+        response = self.browser_emulator.get(url)
+        full_path = self.file_writer.write(file_path, response)
+        self.database.register_download(
+            url_id,
+            self.name,
+            self._filepath,
+            file_path,
+            str(full_path),
+            response.status_code,
+        )
+
+    def should_load(self: "Crawler", url_id: int, cache: bool) -> bool:
+        if not cache:
+            return True
+        last_crawl = self.database.latest_download(url_id)
+        return not last_crawl
+
 
 def remove_variable_parameters(params: Dict[str, Any]) -> Dict[str, Any]:
     copy = deepcopy(params)
@@ -85,3 +112,19 @@ def remove_variable_parameters(params: Dict[str, Any]) -> Dict[str, Any]:
         if key in copy:
             del copy[key]
     return copy
+
+
+def sanitize_component(component: str) -> str:
+    return "".join(c if c.isalnum() or c in "-_." else "_" for c in component)
+
+
+def get_path_from_url(url: str) -> str:
+    parsed = urlparse(url)
+
+    domain_path = join(*sanitize_component(parsed.netloc).split("."))
+
+    path = parsed.path if parsed.path else "/"
+    path_components = [sanitize_component(component) for component in path.strip("/").split("/")]
+
+    base_path = join(domain_path, *path_components)
+    return base_path

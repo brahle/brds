@@ -47,7 +47,7 @@ class FileReader:
     def from_environment(cls: _Type[T], subfolder: str) -> T:
         return cls(_join(_reader_folder_path(), subfolder))
 
-    def load(self: "FileReader", filename: _Optional[str] = None) -> _Any:
+    def load(self: "FileReader", filename: _Optional[str] = None, *args, **kwargs) -> _Any:
         new_file_name = self.get(filename)
         if filename:
             LOGGER.debug(
@@ -64,12 +64,12 @@ class FileReader:
             )
         if new_file_name.endswith(".json"):
             with open(new_file_name) as input_file:
-                return _load(input_file)
+                return _load(input_file, *args, **kwargs)
         if new_file_name.endswith(".parquet"):
-            return _read_parquet(new_file_name)
+            return _read_parquet(new_file_name, *args, **kwargs)
         if new_file_name.endswith(".html"):
             try:
-                return _read_html(new_file_name)
+                return _read_html(new_file_name, *args, **kwargs)
             except ValueError as ve:
                 raise ValueError(f"Error parsing HTML from '{new_file_name}'") from ve
         raise NotImplementedError(f"Do not know how to load the file `{filename}`: `{new_file_name}`")

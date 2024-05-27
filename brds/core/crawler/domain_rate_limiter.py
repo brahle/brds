@@ -3,8 +3,14 @@ from time import sleep, time
 from typing import Callable, Dict, Union
 from urllib.parse import urlparse
 
+from brds.core.logger import get_logger
+
+
 Number = Union[int, float]
 CallableOrNumber = Union[Number, Callable[[], Number]]
+
+
+LOGGER = get_logger()
 
 
 class DomainRateLimiter:
@@ -20,6 +26,8 @@ class DomainRateLimiter:
         delay = self.delay
         if elapsed_time < delay:
             time_to_wait = delay - elapsed_time
+            
+            LOGGER.info("Sleeping %.2fs before continuing", time_to_wait)
             sleep(time_to_wait)
 
     def limit(self: "DomainRateLimiter", url: str) -> None:
