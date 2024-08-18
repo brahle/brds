@@ -100,7 +100,6 @@ def configure_logger(logger: _Logger, options: LoggerOptions) -> _Logger:
     logger.addHandler(console_handler)
     logger.addHandler(file_handler)
 
-    print(f"Configured logger: {logger.name}")
     return logger
 
 
