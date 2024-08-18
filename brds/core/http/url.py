@@ -57,11 +57,7 @@ class Url:
         return self
 
 
-
 if __name__ == "__main__":
     import doctest
 
     doctest.testmod()
-
-
-

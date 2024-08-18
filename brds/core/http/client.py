@@ -5,10 +5,11 @@ from uuid import uuid4
 
 from aiohttp import ClientSession
 
-from brds.core.logger import get_logger as _get_logger
 from brds.core.http.domain_rate_limiter import DomainRateLimiter
+from brds.core.logger import get_logger as _get_logger
 
 LOGGER = _get_logger()
+
 
 class HttpClient:
     def __init__(self, rate_limiter: Optional[DomainRateLimiter] = None):
@@ -63,7 +64,7 @@ class HttpClient:
         await self.close()
 
     async def __finalizer__(self):
-        """Close the session when exiting the context."""
+        """Close the session when exitilsng the context."""
         await self.close()
 
 
@@ -71,6 +72,7 @@ async def test_http_client():
     rate_limiter = DomainRateLimiter(1)
     async with HttpClient(rate_limiter) as client:
         import json
+
         response = await client.get("https://httpbin.org/get")
         print(time(), json.dumps(await response.json(), indent=2))
         response = await client.post("https://httpbin.org/post", json={"key": "value"})
@@ -81,6 +83,7 @@ async def test_http_client():
         print(time(), json.dumps(await response.json(), indent=2))
         response = await client.patch("https://httpbin.org/patch", json={"key": "value"})
         print(time(), json.dumps(await response.json(), indent=2))
+
 
 if __name__ == "__main__":
     run(test_http_client())

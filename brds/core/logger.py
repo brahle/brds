@@ -3,19 +3,23 @@ from inspect import stack as _stack
 from logging import DEBUG as _DEBUG
 from logging import INFO as _INFO
 from logging import WARN as _WARN
+from logging import FileHandler as _FileHandler
+from logging import Formatter as _Formatter
 from logging import Logger as _Logger
 from logging import StreamHandler as _StreamHandler
 from logging import getLogger as _getLogger
-from logging import Formatter as _Formatter
 from typing import Dict as _Dict
 from typing import Iterable as _Iterable
 from typing import List as _List
 from typing import Optional as _Optional
 
+from colorama import Fore as _Fore
+from colorama import Style as _Style
+from colorama import init as _init
 from pythonjsonlogger import jsonlogger as _jsonlogger
-from colorama import Fore as _Fore, Style as _Style, init as _init
 
 _init(autoreset=True)
+
 
 def get_logger() -> _Logger:
     """Acquires a logger."""
@@ -70,7 +74,7 @@ class Loggers:
         return self._loggers[name]
 
     def _new(self: "Loggers", name: str) -> _Logger:
-        return config_logger(_getLogger(name), self._options)
+        return configure_logger(_getLogger(name), self._options)
 
     def update_options(self: "Loggers", options: LoggerOptions) -> None:
         self._options = options
@@ -78,18 +82,25 @@ class Loggers:
             options.update_logger(logger)
 
 
-def config_logger(logger: _Logger, options: LoggerOptions) -> _Logger:
+def configure_logger(logger: _Logger, options: LoggerOptions) -> _Logger:
     logger.setLevel(options.level)
 
     console_handler = _StreamHandler()
     console_handler.setLevel(options.level)
 
     custom_format = " ".join(_log_format(LEAN_KEYS))
-    formatter = _jsonlogger.JsonFormatter(custom_format)
     formatter = ColoredFormatter(custom_format)
     console_handler.setFormatter(formatter)
 
+    full_format = " ".join(_log_format(DEFAULT_KEYS))
+    json_formatter = _jsonlogger.JsonFormatter(full_format)
+    file_handler = _FileHandler("app.log")
+    file_handler.setFormatter(json_formatter)
+
     logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
+
+    print(f"Configured logger: {logger.name}")
     return logger
 
 
@@ -99,11 +110,11 @@ def _log_format(keys: _Iterable[str]) -> _List[str]:
 
 class ColoredFormatter(_Formatter):
     COLOR_CODES = {
-        'DEBUG': _Fore.CYAN,
-        'INFO': _Fore.GREEN,
-        'WARNING': _Fore.YELLOW,
-        'ERROR': _Fore.RED,
-        'CRITICAL': _Fore.RED + _Style.BRIGHT
+        "DEBUG": _Fore.CYAN,
+        "INFO": _Fore.GREEN,
+        "WARNING": _Fore.YELLOW,
+        "ERROR": _Fore.RED,
+        "CRITICAL": _Fore.RED + _Style.BRIGHT,
     }
 
     def format(self, record):
@@ -111,7 +122,6 @@ class ColoredFormatter(_Formatter):
         reset = _Style.RESET_ALL
         log_message = super().format(record)
         return f"{color}{log_message}{reset}"
-
 
 
 LOGGERS = Loggers()

@@ -1,10 +1,10 @@
 from collections import defaultdict
+from threading import Lock
 from time import sleep, time
 from typing import Callable, Dict, Optional, Union
-from threading import Lock
 
-from brds.core.logger import get_logger
 from brds.core.http.url import Url
+from brds.core.logger import get_logger
 
 Number = Union[int, float]
 # Warning: The function used to be Callable[[], Number]] - might cause breaks. The parameter is
@@ -14,7 +14,11 @@ CallableOrNumber = Union[Number, Callable[[str], Number]]
 
 LOGGER = get_logger()
 
-def default_delay(delay: Number = 0.1, domain_map: Dict[str, CallableOrNumber] = None) -> Number:
+
+def default_delay(
+    delay: Number = 0.1,
+    domain_map: Optional[Dict[str, CallableOrNumber]] = None,
+) -> Callable[[str], Number]:
     """
     Returns a function that returns the delay for a given URL. The delay is the time to wait
     before making a request to the same domain again. The delay can be a fixed number or a
@@ -25,6 +29,7 @@ def default_delay(delay: Number = 0.1, domain_map: Dict[str, CallableOrNumber] =
         or a function that returns a number. The function receives the URL as a parameter.
     :return: A function that returns the delay for a given URL.
     """
+
     def _default_delay(url: str) -> Number:
         domain = Url(url).domain
         if domain_map is not None and domain in domain_map:
@@ -33,6 +38,7 @@ def default_delay(delay: Number = 0.1, domain_map: Dict[str, CallableOrNumber] =
                 return for_domain(url)
             return for_domain
         return delay
+
     return _default_delay
 
 
@@ -50,6 +56,7 @@ class DomainRateLimiter:
     >>> rate_limiter.limit("https://example.com")
 
     """
+
     def __init__(self: "DomainRateLimiter", delay: Optional[CallableOrNumber] = None) -> None:
         if delay is None:
             delay = default_delay()
@@ -67,7 +74,7 @@ class DomainRateLimiter:
 
             while elapsed_time < delay:
                 time_to_wait = delay - elapsed_time
-                LOGGER.info("Sleeping %.2fs before continuing", time_to_wait)
+                LOGGER.info("Rate Limit - sleeping %.2fs before continuing", time_to_wait)
                 sleep(time_to_wait)
                 latest_time = time()
                 elapsed_time = latest_time - start_time
@@ -90,6 +97,6 @@ def test_domain_rate_limiter():
         print(f"Limiting {_}")
         rate_limiter.limit("https://example.com")
 
+
 if __name__ == "__main__":
     test_domain_rate_limiter()
-

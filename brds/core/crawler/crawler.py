@@ -4,10 +4,10 @@ from os.path import join
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 from urllib.parse import urlparse
 
-from brds.core.http.browser_emulator import BrowserEmulator
 from brds.core.crawler.config import ConfigStore
 from brds.core.crawler.variables import VariableHolder
 from brds.core.fs.writer import FileWriter
+from brds.core.http.browser_emulator import BrowserEmulator
 from brds.core.logger import get_logger as _get_logger
 from brds.db.init_db import Database
 

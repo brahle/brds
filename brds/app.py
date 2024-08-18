@@ -31,7 +31,7 @@ templates = Jinja2Templates(directory="./brds/templates")
 
 
 @app.get("/dictionary/{filename:path}")
-async def read_as_dict(filename: str = Path(..., regex=r"[\w\-/]+")) -> Dict[str, Any]:
+async def read_as_dict(filename: str = Path(..., pattern=r"[\w\-/]+")) -> Dict[str, Any]:
     try:
         df = fload(str(get_safe_path(filename)))
         return df.to_dict(orient="records")
@@ -40,7 +40,7 @@ async def read_as_dict(filename: str = Path(..., regex=r"[\w\-/]+")) -> Dict[str
 
 
 @app.get("/raw/{filename:path}")
-async def read_raw(filename: str = Path(..., regex=r"[\w\-/]+")) -> Any:
+async def read_raw(filename: str = Path(..., pattern=r"[\w\-/]+")) -> Any:
     try:
         df = fload(str(get_safe_path(filename)))
         if isinstance(df, pd.DataFrame):
@@ -51,7 +51,7 @@ async def read_raw(filename: str = Path(..., regex=r"[\w\-/]+")) -> Any:
 
 
 @app.get("/html/{filename:path}", response_class=HTMLResponse)
-async def read_html(filename: str = Path(..., regex=r"[\w\-/]+")) -> str:
+async def read_html(filename: str = Path(..., pattern=r"[\w\-/]+")) -> str:
     try:
         df: pd.DataFrame = fload(str(get_safe_path(filename)))
         return df.to_html()

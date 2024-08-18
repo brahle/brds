@@ -1,9 +1,7 @@
 from typing import Optional
 
-from requests import Response, Session
-
-from brds.core.http.domain_rate_limiter import DomainRateLimiter
 from brds.core.http.client import HttpClient
+from brds.core.http.domain_rate_limiter import DomainRateLimiter
 
 
 class BrowserEmulator(HttpClient):
@@ -29,6 +27,7 @@ class BrowserEmulator(HttpClient):
             + "Safari/537.36 Edg/116.0.1938.69"
         )
 
+
 async def test_browser_emulator():
     async with BrowserEmulator() as emualtor:
         response = await emualtor.get("https://httpbin.org/get")
@@ -37,5 +36,5 @@ async def test_browser_emulator():
 
 if __name__ == "__main__":
     from asyncio import run
-    run(test_browser_emulator())
 
+    run(test_browser_emulator())
