@@ -93,7 +93,6 @@ async def test_file_writer_stream_write():
         writer = FileWriter("/tmp/test-writer")
         response = await client.get("https://www.example.com")
         file = await writer.stream_write("test", "index.html", response)
-        print(file)
         assert file.exists()
         assert file.name == "index.html"
 
