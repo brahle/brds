@@ -4,10 +4,10 @@ from os.path import join
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 from urllib.parse import urlparse
 
-from brds.core.crawler.browser_emulator import BrowserEmulator
 from brds.core.crawler.config import ConfigStore
 from brds.core.crawler.variables import VariableHolder
 from brds.core.fs.writer import FileWriter
+from brds.core.http.browser_emulator import BrowserEmulator
 from brds.core.logger import get_logger as _get_logger
 from brds.db.init_db import Database
 
@@ -40,7 +40,7 @@ class Crawler:
         self.loop_variables = loop_variables
         self._filepath = _filepath
 
-    def execute(self: "Crawler") -> None:
+    async def execute(self: "Crawler") -> None:
         for input_variables in self.iterate_inputs():
             vars = self.merge_variables(input_variables)
             if self.loop_variables:
@@ -49,9 +49,9 @@ class Crawler:
                     for key, value in zip(self.loop_variables, loop_vars):
                         if key not in ["name", "_filepath"]:
                             vars[key] = value
-                    self._process(vars)
+                    await self._process(vars)
             else:
-                self._process(vars)
+                await self._process(vars)
 
     def merge_variables(self: "Crawler", input_variables: Tuple[Dict[str, Any]]) -> VariableHolder:
         variables = VariableHolder()
@@ -74,21 +74,22 @@ class Crawler:
         assert self.loop_variables is not None
         return product(*[variables[loop_variable] for loop_variable in self.loop_variables])
 
-    def _process(self: "Crawler", variables: VariableHolder) -> None:
-        self.process(variables)
+    async def _process(self: "Crawler", variables: VariableHolder) -> None:
+        await self.process(variables)
 
-    def process(self: "Crawler", variables: VariableHolder) -> None:
+    async def process(self: "Crawler", variables: VariableHolder) -> None:
         raise NotImplementedError("You need to override this function")
 
     def url(self: "Crawler", variables: VariableHolder) -> str:
         return variables["url"] + self.urls[0]["url"].format(**variables.variables)
 
-    def download(self: "Crawler", url: str, url_id: int) -> None:
+    async def download(self: "Crawler", url: str, url_id: int) -> None:
         file_path = get_path_from_url(url)
         LOGGER.info(f"Downloading '{url}' to '{file_path}'")
 
-        response = self.browser_emulator.get(url)
-        full_path = self.file_writer.write(file_path, response)
+        response = await self.browser_emulator.get(url)
+        response_content = await response.content()
+        full_path = self.file_writer.write(file_path, response_content)
         self.database.register_download(
             url_id,
             self.name,
