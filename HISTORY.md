@@ -4,6 +4,12 @@ Changelog
 
 (unreleased)
 ------------
+- Fixing the logger. [Bruno Rahle]
+
+
+0.7.0 (2024-08-18)
+------------------
+- Release: version 0.7.0 🚀 [Bruno Rahle]
 - BREAKING CHANGE: New aiohttp HttpClient (#11) [Bruno Rahle]
 
   * Breaking Changes to the HttpClient, BrowserEmulator, improvements to the Domain Rate Limiter and Logger
