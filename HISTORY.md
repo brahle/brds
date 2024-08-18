@@ -4,6 +4,16 @@ Changelog
 
 (unreleased)
 ------------
+- Stream Writer (#12) [Bruno Rahle]
+
+  * Stream Writer
+
+  * Fixing the formatting
+
+
+0.8.0 (2024-08-18)
+------------------
+- Release: version 0.8.0 🚀 [Bruno Rahle]
 - Fixing the logger. [Bruno Rahle]
 
 
