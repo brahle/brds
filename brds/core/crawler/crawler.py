@@ -4,7 +4,7 @@ from os.path import join
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 from urllib.parse import urlparse
 
-from brds.core.crawler.browser_emulator import BrowserEmulator
+from brds.core.http.browser_emulator import BrowserEmulator
 from brds.core.crawler.config import ConfigStore
 from brds.core.crawler.variables import VariableHolder
 from brds.core.fs.writer import FileWriter

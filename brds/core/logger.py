@@ -6,13 +6,16 @@ from logging import WARN as _WARN
 from logging import Logger as _Logger
 from logging import StreamHandler as _StreamHandler
 from logging import getLogger as _getLogger
+from logging import Formatter as _Formatter
 from typing import Dict as _Dict
 from typing import Iterable as _Iterable
 from typing import List as _List
 from typing import Optional as _Optional
 
 from pythonjsonlogger import jsonlogger as _jsonlogger
+from colorama import Fore as _Fore, Style as _Style, init as _init
 
+_init(autoreset=True)
 
 def get_logger() -> _Logger:
     """Acquires a logger."""
@@ -83,6 +86,7 @@ def config_logger(logger: _Logger, options: LoggerOptions) -> _Logger:
 
     custom_format = " ".join(_log_format(LEAN_KEYS))
     formatter = _jsonlogger.JsonFormatter(custom_format)
+    formatter = ColoredFormatter(custom_format)
     console_handler.setFormatter(formatter)
 
     logger.addHandler(console_handler)
@@ -93,13 +97,28 @@ def _log_format(keys: _Iterable[str]) -> _List[str]:
     return [f"%({key:s})s" for key in keys]
 
 
+class ColoredFormatter(_Formatter):
+    COLOR_CODES = {
+        'DEBUG': _Fore.CYAN,
+        'INFO': _Fore.GREEN,
+        'WARNING': _Fore.YELLOW,
+        'ERROR': _Fore.RED,
+        'CRITICAL': _Fore.RED + _Style.BRIGHT
+    }
+
+    def format(self, record):
+        color = self.COLOR_CODES.get(record.levelname, _Fore.WHITE)
+        reset = _Style.RESET_ALL
+        log_message = super().format(record)
+        return f"{color}{log_message}{reset}"
+
+
+
 LOGGERS = Loggers()
 LEAN_KEYS = [
-    "asctime",
     "levelname",
     "message",
-    "funcName",
-    "pathname",
+    "asctime",
 ]
 
 DEFAULT_KEYS = [
