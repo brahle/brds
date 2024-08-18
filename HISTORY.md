@@ -4,6 +4,12 @@ Changelog
 
 (unreleased)
 ------------
+- Hotfixing - removing print' [Bruno Rahle]
+
+
+0.9.0 (2024-08-18)
+------------------
+- Release: version 0.9.0 🚀 [Bruno Rahle]
 - Stream Writer (#12) [Bruno Rahle]
 
   * Stream Writer
