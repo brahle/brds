@@ -88,6 +88,7 @@ class FileWriter:
 
 async def test_file_writer_stream_write():
     from brds.core.http.client import HttpClient
+
     async with HttpClient() as client:
         writer = FileWriter("/tmp/test-writer")
         response = await client.get("https://www.example.com")
@@ -99,4 +100,5 @@ async def test_file_writer_stream_write():
 
 if __name__ == "__main__":
     from asyncio import run as _run
+
     _run(test_file_writer_stream_write())
