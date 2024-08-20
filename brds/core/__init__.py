@@ -12,14 +12,17 @@ from .edit import (
 )
 from .environment import reader_folder_path, root_folder_path, vault_token, writer_folder_path
 from .fetch import Fetcher
-from .fs import FileReader, FileWriter, fload
+from .fs import FileReader, FileWriter, fload, RootedReader
+from .http import BrowserEmulator, DomainRateLimiter, HttpClient, Url
 from .importer import GunzipImporter, Importer
 from .logger import get_logger, set_logging_to_debug, set_logging_to_info, set_logging_to_warn
 from .security import get_safe_path
 from .vault import Vault
 
 __all__ = [
+    "BrowserEmulator",
     "DatasetInfo",
+    "DomainRateLimiter",
     "ExactMatch",
     "Fetcher",
     "FileReader",
@@ -34,6 +37,7 @@ __all__ = [
     "get_logger",
     "get_safe_path",
     "GunzipImporter",
+    "HttpClient",
     "Importer",
     "list_datasets",
     "reader_folder_path",
@@ -41,9 +45,11 @@ __all__ = [
     "Replacement",
     "replacer",
     "root_folder_path",
+    "RootedReader",
     "set_logging_to_debug",
     "set_logging_to_info",
     "set_logging_to_warn",
+    "Url",
     "vault_token",
     "Vault",
     "writer_folder_path",

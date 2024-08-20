@@ -18,6 +18,17 @@ T = _TypeVar("T", bound="FileReader")
 LOGGER = _get_logger()
 
 
+class RootedReader:
+    def __init__(self: "RootedReader", root_folder: _Optional[str] = None) -> None:
+        self._root_folder = root_folder if root_folder else _reader_folder_path()
+
+    def static_files(self: "RootedReader", path: str) -> _Any:
+        return FileReader(folder=_join(self._root_folder), version=path)
+
+    def versioned_files(self: "RootedReader", path: str) -> _Any:
+        return FileReader(folder=_join(self._root_folder, path))
+
+
 class FileReader:
     def __init__(self: "FileReader", folder: str, version: _Optional[str] = None) -> None:
         self._root_folder = folder
