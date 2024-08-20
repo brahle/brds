@@ -4,6 +4,13 @@ Changelog
 
 (unreleased)
 ------------
+- Refactor: reorganize imports and add RootedReader to brds.core.fs.
+  [Bruno Rahle]
+
+
+0.10.0 (2024-08-18)
+-------------------
+- Release: version 0.10.0 🚀 [Bruno Rahle]
 - Hotfixing - removing print' [Bruno Rahle]
 
 
