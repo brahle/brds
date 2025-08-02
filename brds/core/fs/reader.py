@@ -1,5 +1,7 @@
 from json import load as _load
 from os import listdir as _listdir
+from os import makedirs as _makedirs
+from os.path import exists as _exists
 from os.path import join as _join
 from typing import Any as _Any
 from typing import Optional as _Optional
@@ -22,10 +24,16 @@ class RootedReader:
     def __init__(self: "RootedReader", root_folder: _Optional[str] = None) -> None:
         self._root_folder = root_folder if root_folder else _reader_folder_path()
 
-    def static_files(self: "RootedReader", path: str) -> _Any:
-        return FileReader(folder=_join(self._root_folder), version=path)
+    def static_files(self: "RootedReader", path: str, create: bool = False) -> _Any:
+        reader_path = self._root_folder
+        if create:
+            _makedirs(reader_path, exist_ok=True)
+        return FileReader(folder=reader_path, version=path)
 
-    def versioned_files(self: "RootedReader", path: str) -> _Any:
+    def versioned_files(self: "RootedReader", path: str, create: bool = False) -> _Any:
+        reader_path = _join(self._root_folder, path)
+        if create:
+            _makedirs(_join(reader_path, "_/_"), exist_ok=True)
         return FileReader(folder=_join(self._root_folder, path))
 
 
@@ -53,6 +61,13 @@ class FileReader:
         if filename is None:
             return _join(self._folder, _listdir(self._folder)[0])
         return _join(self._folder, filename)
+
+    def exists(self: "FileReader", filename: str) -> bool:
+        try:
+            resolved_path = self.get(filename)
+        except FileNotFoundError:
+            return False
+        return _exists(resolved_path)
 
     @classmethod
     def from_environment(cls: _Type[T], subfolder: str) -> T:
@@ -87,7 +102,10 @@ class FileReader:
 
 
 def _last_folder(folder: str) -> str:
-    return _join(folder, sorted(_listdir(folder), reverse=True)[0])
+    try:
+        return _join(folder, sorted(_listdir(folder), reverse=True)[0])
+    except IndexError:
+        raise FileNotFoundError(f"Folder '{folder}' is empty.")
 
 
 def fload(folder: str, filename: _Optional[str] = None) -> _Any:

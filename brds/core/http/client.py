@@ -14,7 +14,7 @@ LOGGER = _get_logger()
 class HttpClient:
     def __init__(self, rate_limiter: Optional[DomainRateLimiter] = None):
         self.uuid = str(uuid4())
-        LOGGER.info("Creating HTTP client with UUID: %s", self.uuid)
+        LOGGER.info(f"[{self.uuid}] Creating a new HTTP client")
         self.session = ClientSession()
         if rate_limiter is None:
             rate_limiter = DomainRateLimiter()
@@ -22,7 +22,6 @@ class HttpClient:
         LOGGER.debug("HTTP client created with UUID: %s", self.uuid)
 
     async def request(self, method, url, **kwargs):
-        LOGGER.info(f"[{self.uuid}] {method} {url}")
         LOGGER.debug(f"[{self.uuid}] {method} {url} with kwargs: {kwargs}")
         self.rate_limiter.limit(url)
         response = await self.session.request(method, url, **kwargs)
@@ -52,7 +51,7 @@ class HttpClient:
         return await self.request("OPTIONS", url, **kwargs)
 
     async def close(self):
-        LOGGER.info(f"[{self.uuid}] Closing HTTP client")
+        LOGGER.debug(f"[{self.uuid}] Closing HTTP client")
         await self.session.close()
 
     async def __aenter__(self):

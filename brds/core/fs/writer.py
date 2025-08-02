@@ -6,6 +6,7 @@ from typing import Optional as _Optional
 from typing import Type as _Type
 from typing import TypeVar as _TypeVar
 from typing import Union as _Union
+from uuid import uuid4 as _uuid4
 
 from aiohttp import ClientResponse as _ClientResponse
 from pandas import DataFrame as _DataFrame
@@ -21,13 +22,14 @@ WriterTypes = _Union[_DataFrame, _Any]
 
 class FileWriter:
     def __init__(self: "FileWriter", folder: str, timestamp_col: _Optional[str] = None) -> None:
-        self._timestamp = _datetime.utcnow()
+        self._timestamp = _datetime.now()
         self._folder = _Path(folder)
         self._folder.mkdir(parents=True, exist_ok=True)
         self._timestamp_col = timestamp_col
+        self._id = _uuid4()
 
     def write(self: "FileWriter", name: str, data: _Any) -> _Path:
-        LOGGER.info("Writing file '%s'", name)
+        LOGGER.debug(f"[{self._id}] Writing file '{name}'")
         if isinstance(data, _DataFrame):
             return self.write_pandas(name, data)
         if isinstance(data, Response):
@@ -39,7 +41,7 @@ class FileWriter:
         file = self._get_file(name, "data.parquet")
         if self._timestamp_col:
             data[self._timestamp_col] = self._timestamp
-        LOGGER.debug(f"Writing file '{file}'.")
+        LOGGER.info(f"[{self._id}] Writing file '{name}' to '{file}'.")
         data.to_parquet(file)
         return file
 
@@ -49,21 +51,21 @@ class FileWriter:
             if not isinstance(data, dict):
                 data = {"data": data}
             data[self._timestamp_col] = self._timestamp.isoformat()
-        LOGGER.debug(f"Writing file '{file}'.")
+        LOGGER.info(f"[{self._id}] Writing file '{name}' to '{file}'.")
         with open(file, "w+") as output:
             _dump(data, output)
         return file
 
     def write_response(self: "FileWriter", name: str, data: Response) -> _Path:
         file = self._get_file(name, "index.html")
-        LOGGER.debug(f"Writing file '{file}'.")
+        LOGGER.info(f"[{self._id}] Writing file '{name}' to '{file}'.")
         with open(file, "w+") as output:
             output.write(data.text)
         return file
 
     async def stream_write(self: "FileWriter", name: str, output_file_name: str, response: _ClientResponse) -> _Path:
         file = self._get_file(name, output_file_name)
-        LOGGER.debug(f"Writing file '{file}'.")
+        LOGGER.info(f"[{self._id}] Writing file '{name}' to '{file}'.")
         with open(file, "wb") as output:
             while True:
                 chunk = await response.content.read(1024)  # Read in 1KB chunks
