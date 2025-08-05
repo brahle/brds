@@ -4,6 +4,18 @@ Changelog
 
 (unreleased)
 ------------
+- Feat: add MinioWriter for S3-compatible object storage. [Bruno Rahle,
+  Claude]
+
+  Add MinioWriter class that mirrors FileWriter interface but writes to configurable MinIO/S3 buckets. Supports pandas DataFrames, JSON objects, HTTP responses, and async streaming with automatic bucket creation and timestamp columns.
+
+  🤖 Generated with [Claude Code](https://claude.ai/code)
+- Minor changes to file listing. [Bruno Rahle]
+
+
+0.11.0 (2024-08-20)
+-------------------
+- Release: version 0.11.0 🚀 [Bruno Rahle]
 - Refactor: reorganize imports and add RootedReader to brds.core.fs.
   [Bruno Rahle]
 
