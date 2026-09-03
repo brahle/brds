@@ -19,6 +19,35 @@ T = _TypeVar("T", bound="FileReader")
 
 LOGGER = _get_logger()
 
+#: Files a version directory can hold that are *about* the payload rather than
+#: the payload itself. `get(None)` skips these when something else is present,
+#: so a dataset can carry a sidecar descriptor without hiding its own data.
+DESCRIPTOR_FILENAMES = frozenset({"manifest.json"})
+
+#: Suffixes that mark a file as debris rather than data: checksums a writer
+#: drops beside its output, half-finished writes, editor backups.
+_DEBRIS_SUFFIXES = (".crc", "~", ".tmp", ".temp", ".part", ".partial", ".swp", ".bak")
+
+#: Whole names that are markers, not data. `_SUCCESS` and friends come from
+#: Hadoop-lineage writers; `.DS_Store` and dotfiles are caught by the prefix.
+_DEBRIS_NAMES = frozenset({"_SUCCESS", "_temporary", "_committed", "_started"})
+
+
+class AmbiguousDirectoryError(RuntimeError):
+    """A directory resolved without a filename holds more than one candidate.
+
+    Raised instead of picking one. `readdir` order is the filesystem's
+    business -- ext4 htree order depends on a hash seed chosen at mkfs -- so
+    "the first entry" is not a stable answer, and a loader that returns an
+    unstable answer returns a *confidently wrong* one: a caller asking for a
+    frame gets a dict, with no exception until several frames later.
+    """
+
+
+def _is_debris(name: str) -> bool:
+    """Is this entry incidental to the write rather than the point of it?"""
+    return name.startswith(".") or name in _DEBRIS_NAMES or name.endswith(_DEBRIS_SUFFIXES)
+
 
 class RootedReader:
     def __init__(self: "RootedReader", root_folder: _Optional[str] = None) -> None:
@@ -59,8 +88,41 @@ class FileReader:
 
     def get(self: "FileReader", filename: _Optional[str] = None) -> str:
         if filename is None:
-            return _join(self._folder, _listdir(self._folder)[0])
+            return _join(self._folder, self._sole_file())
         return _join(self._folder, filename)
+
+    def _sole_file(self: "FileReader") -> str:
+        """The one file in `self._folder` a caller who named none must have meant.
+
+        This used to be `_listdir(folder)[0]`, which is whichever entry
+        `readdir` handed back first. Every version directory brds writes holds
+        exactly one file, so that was right for as long as it stayed true and
+        silently wrong the moment it did not -- the second file could be
+        returned in place of the first, and `load` would happily parse a
+        `manifest.json` into a dict where the caller expected a DataFrame.
+
+        The rule now is: ignore debris, take the single remaining file, and if
+        two files could both be it, refuse rather than guess.
+        """
+        entries = sorted(name for name in _listdir(self._folder) if not _is_debris(name))
+        if not entries:
+            raise FileNotFoundError(
+                f"Directory '{self._folder}' holds no loadable file "
+                "(it is empty, or holds only checksums, markers and hidden files)."
+            )
+        if len(entries) == 1:
+            return entries[0]
+        payloads = [name for name in entries if name not in DESCRIPTOR_FILENAMES]
+        if len(payloads) == 1:
+            return payloads[0]
+        raise AmbiguousDirectoryError(
+            f"Directory '{self._folder}' holds {len(entries)} candidate files "
+            f"({', '.join(entries)}) and no filename was given, so which one is "
+            "meant is the filesystem's readdir order rather than anything you "
+            "asked for. Name the file -- `fload(folder, filename)` or "
+            "`FileReader(...).load(filename)` -- or leave one payload in the "
+            "directory."
+        )
 
     def exists(self: "FileReader", filename: str) -> bool:
         try:

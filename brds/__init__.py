@@ -1,4 +1,5 @@
 from .core import (
+    AmbiguousDirectoryError,
     BrowserEmulator,
     DatasetInfo,
     DomainRateLimiter,
@@ -35,6 +36,7 @@ from .core import (
 )
 
 __all__ = [
+    "AmbiguousDirectoryError",
     "BrowserEmulator",
     "DatasetInfo",
     "DomainRateLimiter",
