@@ -6,3 +6,4 @@ isort
 mypy
 gitchangelog
 mkdocs
+pytest-asyncio
