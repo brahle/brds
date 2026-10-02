@@ -8,6 +8,7 @@ misses the server command, compiled readers and packaged HTML templates.
 import argparse
 import http.client
 import json
+import os
 from pathlib import Path
 import subprocess
 import tempfile
@@ -45,7 +46,23 @@ frame.to_parquet(stem.with_suffix('.parquet'), index=False)
 stem.with_name('manifest.json').write_text('{{"kind": "synthetic"}}')
 pd.testing.assert_frame_equal(fload('smoke/dataset', 'rows.parquet'), frame)
 """
-            docker("run", "--rm", "--network", "none", "--mount", mount, "--entrypoint", "python", image, "-c", code)
+            docker(
+                "run",
+                "--rm",
+                "--user",
+                f"{os.getuid()}:{os.getgid()}",
+                "--workdir",
+                "/tmp",
+                "--network",
+                "none",
+                "--mount",
+                mount,
+                "--entrypoint",
+                "python",
+                image,
+                "-c",
+                code,
+            )
             docker(
                 "run",
                 "--detach",
