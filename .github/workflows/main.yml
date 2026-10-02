@@ -14,6 +14,27 @@ on:
   workflow_dispatch:
 
 jobs:
+  container:
+    name: Container build and smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: docker/setup-buildx-action@v4.4.1
+      - name: Build image without registry credentials
+        uses: docker/build-push-action@v7.4.0
+        with:
+          context: .
+          file: ./Containerfile
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: brds:container-test
+      - name: Exercise the server and data readers
+        run: python3 scripts/check_container.py brds:container-test
+
   linter:
     strategy:
       fail-fast: false
