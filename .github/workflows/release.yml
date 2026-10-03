@@ -19,18 +19,21 @@ jobs:
       distributions_artifact_id: ${{ steps.distributions.outputs.artifact-id }}
       container_artifact_id: ${{ steps.container.outputs.artifact-id }}
     steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-python@v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.14.7'
-      - uses: docker/setup-buildx-action@v4.4.1
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
       - name: Check release tag matches package version
         if: github.ref_type == 'tag'
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         run: test "$RELEASE_TAG" = "$(tr -d '\r\n' < brds/VERSION)"
+      - name: Read the package version for image metadata
+        id: metadata
+        run: echo "version=$(tr -d '\r\n' < brds/VERSION)" >> "$GITHUB_OUTPUT"
       - name: Build the release image once
-        uses: docker/build-push-action@v7.4.0
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: ./Containerfile
@@ -38,6 +41,10 @@ jobs:
           load: true
           push: false
           tags: brds:release-test
+          labels: |
+            org.opencontainers.image.version=${{ steps.metadata.outputs.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
       - name: Exercise the server and data readers
         run: python3 scripts/check_container.py brds:release-test
       - name: Extract the distributions installed in the tested image
@@ -55,7 +62,7 @@ jobs:
           docker image inspect --format '{{.Id}}' brds:release-test > image.id
           docker save brds:release-test | gzip -1 > image.tar.gz
           sha256sum image.tar.gz > image.sha256
-      - uses: actions/upload-artifact@v7.0.1
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         id: distributions
         with:
           name: python-distributions-${{ github.run_attempt }}
@@ -64,7 +71,7 @@ jobs:
             distributions.sha256
           if-no-files-found: error
           retention-days: 7
-      - uses: actions/upload-artifact@v7.0.1
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         id: container
         with:
           name: tested-container-${{ github.run_attempt }}
@@ -84,12 +91,12 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
       - name: Generate Changelog
         run: .github/release_message.sh > release_message.md
-      - uses: softprops/action-gh-release@v3.0.3
+      - uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           body_path: release_message.md
 
@@ -98,11 +105,11 @@ jobs:
     needs: [validate, release]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-python@v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.14.7'
-      - uses: actions/download-artifact@v8.0.1
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           artifact-ids: ${{ needs.validate.outputs.distributions_artifact_id }}
       - name: Verify and publish saved distributions
@@ -119,8 +126,11 @@ jobs:
     needs: [validate, deploy]
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      receipt_artifact_id: ${{ steps.receipt.outputs.artifact-id }}
     steps:
-      - uses: actions/download-artifact@v8.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           artifact-ids: ${{ needs.validate.outputs.container_artifact_id }}
       - name: Verify and load the saved image
@@ -128,16 +138,55 @@ jobs:
           sha256sum --check image.sha256
           docker load --input image.tar.gz
           test "$(docker image inspect --format '{{.Id}}' brds:release-test)" = "$(cat image.id)"
-      - uses: docker/login-action@v4.6.0
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Tag and push the tested image
+      - name: Publish the versioned tested image
         env:
           IMAGE_REPOSITORY: ${{ secrets.DOCKERHUB_USERNAME }}/brds
           RELEASE_TAG: ${{ github.ref_name }}
-        run: |
-          docker tag brds:release-test "$IMAGE_REPOSITORY:$RELEASE_TAG"
-          docker tag brds:release-test "$IMAGE_REPOSITORY:latest"
-          docker push "$IMAGE_REPOSITORY:$RELEASE_TAG"
-          docker push "$IMAGE_REPOSITORY:latest"
+          UPSTREAM_ARTIFACT_ID: ${{ needs.validate.outputs.container_artifact_id }}
+        run: python3 scripts/publish_container.py version
+      - name: Save the version publication receipt
+        if: always() && hashFiles('version-receipt.json') != ''
+        id: receipt
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: container-version-receipt-${{ github.run_attempt }}
+          path: version-receipt.json
+          if-no-files-found: error
+          retention-days: 7
+
+  promote-latest:
+    name: Promote stable latest without moving backwards
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: brds-container-latest
+      queue: max
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.build-and-push.outputs.receipt_artifact_id }}
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Compare and promote the published immutable image
+        env:
+          IMAGE_REPOSITORY: ${{ secrets.DOCKERHUB_USERNAME }}/brds
+          RELEASE_TAG: ${{ github.ref_name }}
+          UPSTREAM_ARTIFACT_ID: ${{ needs.build-and-push.outputs.receipt_artifact_id }}
+        run: python3 scripts/publish_container.py latest
+      - name: Save the latest decision receipt
+        if: always() && hashFiles('latest-receipt.json') != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: container-latest-receipt-${{ github.run_attempt }}
+          path: latest-receipt.json
+          if-no-files-found: error
+          retention-days: 7
