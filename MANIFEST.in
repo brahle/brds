@@ -3,3 +3,7 @@ include HISTORY.md
 include Containerfile
 graft tests
 graft brds
+include requirements.txt
+include requirements-test.txt
+include requirements-*.lock
+include pyproject.toml

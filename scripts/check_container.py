@@ -37,8 +37,11 @@ def check_image(image):
             # binary wheels without installing any dependency on the host.
             code = f"""
 from pathlib import Path
+import importlib.metadata as metadata
 import pandas as pd
 from brds import fload
+installed = {{distribution.metadata['Name'].lower() for distribution in metadata.distributions()}}
+assert not installed.intersection({{'mypy', 'pandas-stubs', 'types-pyyaml', 'types-requests', 'build', 'twine', 'setuptools', 'wheel'}})
 stem = Path('/data/{relative}')
 stem.parent.mkdir(parents=True)
 frame = pd.DataFrame({rows!r})

@@ -7,3 +7,6 @@ mypy
 gitchangelog
 mkdocs
 pytest-asyncio
+pandas-stubs
+types-PyYAML
+types-requests

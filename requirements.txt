@@ -1,9 +1,4 @@
-# This template is a low-dependency template.
-# By default there is no requirements added here.
-# Add the requirements you need to this file.
-# or run `make init` to create this file automatically based on the template.
-# You can also run `make switch-to-poetry` to use the poetry package manager.
-
+# Library runtime requirements. The standalone image uses requirements-container.lock.
 aiohttp
 colorama
 fastapi>=0.94.1
@@ -12,14 +7,11 @@ hvac
 jinja2
 lxml
 minio
-mypy
 numpy
 pandas
-pandas-stubs
 pyarrow
 python-dotenv
+PyYAML
 python-json-logger
 requests
-types-PyYAML
-types-requests
 uvicorn
