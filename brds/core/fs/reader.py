@@ -3,6 +3,7 @@ from os import listdir as _listdir
 from os import makedirs as _makedirs
 from os.path import exists as _exists
 from os.path import join as _join
+from pathlib import Path as _Path
 from typing import Any as _Any
 from typing import Optional as _Optional
 from typing import TextIO as _TextIO
@@ -14,6 +15,7 @@ from pandas import read_parquet as _read_parquet
 
 from ..environment import reader_folder_path as _reader_folder_path
 from ..logger import get_logger as _get_logger
+from ..security import get_safe_path as _get_safe_path
 
 T = _TypeVar("T", bound="FileReader")
 
@@ -67,14 +69,20 @@ class RootedReader:
 
 
 class FileReader:
-    def __init__(self: "FileReader", folder: str, version: _Optional[str] = None) -> None:
+    def __init__(
+        self: "FileReader", folder: str, version: _Optional[str] = None, *, allowed_root: _Optional[str] = None
+    ) -> None:
+        # Standalone readers remain unrestricted. API callers pin the root so
+        # latest-version traversal and the eventual payload share a boundary.
+        self._allowed_root = allowed_root
+        folder = self._checked_path(folder)
         self._root_folder = folder
 
         if version is None:
-            self._folder = _last_folder(_last_folder(folder))
+            self._folder = _last_folder(_last_folder(folder, allowed_root), allowed_root)
             self._version = self._folder[len(folder) :]
         else:
-            self._folder = _join(folder, version)
+            self._folder = self._checked_path(_join(folder, version))
             self._version = version
 
     def open(
@@ -88,8 +96,13 @@ class FileReader:
 
     def get(self: "FileReader", filename: _Optional[str] = None) -> str:
         if filename is None:
-            return _join(self._folder, self._sole_file())
-        return _join(self._folder, filename)
+            return self._checked_path(_join(self._folder, self._sole_file()))
+        return self._checked_path(_join(self._folder, filename))
+
+    def _checked_path(self: "FileReader", path: str) -> str:
+        if self._allowed_root is None:
+            return path
+        return str(_get_safe_path(str(_Path(path).absolute()), root_folder=self._allowed_root))
 
     def _sole_file(self: "FileReader") -> str:
         """The one file in `self._folder` a caller who named none must have meant.
@@ -104,7 +117,8 @@ class FileReader:
         The rule now is: ignore debris, take the single remaining file, and if
         two files could both be it, refuse rather than guess.
         """
-        entries = sorted(name for name in _listdir(self._folder) if not _is_debris(name))
+        folder = self._checked_path(self._folder)
+        entries = sorted(name for name in _listdir(folder) if not _is_debris(name))
         if not entries:
             raise FileNotFoundError(
                 f"Directory '{self._folder}' holds no loadable file "
@@ -163,9 +177,14 @@ class FileReader:
         raise NotImplementedError(f"Do not know how to load the file `{filename}`: `{new_file_name}`")
 
 
-def _last_folder(folder: str) -> str:
+def _last_folder(folder: str, allowed_root: _Optional[str] = None) -> str:
+    if allowed_root is not None:
+        folder = str(_get_safe_path(folder, root_folder=allowed_root))
     try:
-        return _join(folder, sorted(_listdir(folder), reverse=True)[0])
+        selected = _join(folder, sorted(_listdir(folder), reverse=True)[0])
+        if allowed_root is not None:
+            return str(_get_safe_path(selected, root_folder=allowed_root))
+        return selected
     except IndexError:
         raise FileNotFoundError(f"Folder '{folder}' is empty.")
 

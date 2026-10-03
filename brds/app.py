@@ -5,13 +5,22 @@ from typing import Any, Dict, List
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Path, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
-from brds import fload, get_dataset_files, get_safe_path, list_datasets
+from brds import get_dataset_files, get_safe_path, list_datasets
 from brds.core.fs.reader import FileReader
 
 app = FastAPI()
+
+
+@app.middleware("http")
+async def reject_null_paths(request: Request, call_next):
+    # Reject decoded NUL before route regex validation or filesystem calls.
+    if "\x00" in request.scope["path"]:
+        return JSONResponse(status_code=400, content={"detail": "Invalid path"})
+    return await call_next(request)
+
 
 origins = [
     "http://localhost:3000",
@@ -33,10 +42,11 @@ templates = Jinja2Templates(directory=str(FilePath(__file__).parent / "templates
 
 
 def _load_path(filename: str) -> Any:
-    path = get_safe_path(filename)
+    root = str(get_safe_path("."))
+    path = get_safe_path(filename, root_folder=root)
     if path.is_file():
-        return FileReader(folder=str(path.parent), version="").load(path.name)
-    return fload(str(path))
+        return FileReader(folder=str(path.parent), version="", allowed_root=root).load(path.name)
+    return FileReader(folder=str(path), allowed_root=root).load()
 
 
 @app.get("/dictionary/{filename:path}")

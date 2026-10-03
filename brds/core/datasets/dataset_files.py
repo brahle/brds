@@ -3,14 +3,16 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 from brds.core.environment import reader_folder_path
+from brds.core.security import get_safe_path
 
 
 def get_dataset_files(dataset_name: str) -> List[Tuple[str, List[Path]]]:
-    root = Path(reader_folder_path())
-    dataset_path = root.joinpath(dataset_name)
+    root = Path(reader_folder_path()).resolve()
+    dataset_path = get_safe_path(dataset_name, root_folder=str(root))
     grouped_files: Dict[str, List[Path]] = defaultdict(list)
 
     for file_path in dataset_path.glob("**/*.*"):
+        get_safe_path(str(file_path), root_folder=str(root))
         if not file_path.is_file():
             continue
         timestamp_str = str(file_path.parent)

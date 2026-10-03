@@ -39,6 +39,7 @@ setup(
     author="brahle",
     packages=find_packages(exclude=["tests", ".github"]),
     install_requires=read_requirements("requirements.txt"),
+    python_requires=">=3.9",
     entry_points={
         "console_scripts": ["brds = brds.__main__:main"]
     },

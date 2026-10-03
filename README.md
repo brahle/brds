@@ -12,9 +12,19 @@ pip install brds
 
 ## Usage
 
+```python
+from brds import FileReader
+
+reader = FileReader(folder="/data/example", version="", allowed_root="/data")
+data = reader.load("data.parquet")
 ```
-Coming soon!
-```
+
+`allowed_root` checks resolved paths before listing version directories or opening
+a payload. Omitting it preserves ordinary `FileReader` and `fload` behavior.
+The HTTP API pins readers to the normalized `FILE_READER_PATH`, including its
+automatic latest-version selection. Paths or symlinks outside that root return
+403; NUL request paths return 400. Relative and symlinked configured roots are
+supported by file reading and dataset listings. Python 3.9 or newer is required.
 
 ## Development
 

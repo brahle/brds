@@ -7,6 +7,7 @@ mypy
 gitchangelog
 mkdocs
 pytest-asyncio
+httpx>=0.27
 pandas-stubs
 types-PyYAML
 types-requests
