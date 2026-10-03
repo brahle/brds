@@ -6,11 +6,10 @@ from brds.core.environment import reader_folder_path
 
 
 def get_safe_path(file_path: str) -> _Path:
-    base_dir = reader_folder_path()
-    safe_path = _Path(base_dir) / file_path
-    safe_path = safe_path.resolve()
+    base_dir = _Path(reader_folder_path()).resolve()
+    safe_path = (base_dir / file_path).resolve()
 
-    if not str(safe_path).startswith(base_dir):
+    if not safe_path.is_relative_to(base_dir):
         raise HTTPException(status_code=403, detail="Access denied")
 
     return safe_path
