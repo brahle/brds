@@ -1,4 +1,5 @@
 from os.path import isfile
+from pathlib import Path as FilePath
 from typing import Any, Dict, List
 
 import pandas as pd
@@ -28,7 +29,7 @@ app.add_middleware(
 )
 
 
-templates = Jinja2Templates(directory="./brds/templates")
+templates = Jinja2Templates(directory=str(FilePath(__file__).parent / "templates"))
 
 
 def _load_path(filename: str) -> Any:
