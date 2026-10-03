@@ -18,7 +18,7 @@ def parse_timestamp(timestamp_str: str) -> datetime:
 
 def extract_dataset_info(dataset_path: Path, root: Path) -> Dict[str, Any]:
     relative_path = dataset_path.relative_to(root)
-    parts = str(relative_path).split("/")
+    parts = list(relative_path.parts)
     date_str, time_str, _ = parts[-3:]
     dataset_name = parts[-4]
     module_name_parts = parts[:-4]
