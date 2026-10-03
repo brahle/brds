@@ -23,7 +23,10 @@ data = reader.load("data.parquet")
 a payload. Omitting it preserves ordinary `FileReader` and `fload` behavior.
 The HTTP API pins readers to the normalized `FILE_READER_PATH`, including its
 automatic latest-version selection. Paths or symlinks outside that root return
-403; NUL request paths return 400. Relative and symlinked configured roots are
+403; NUL request paths return 400, and unresolvable paths (including symlink
+loops) return 404. The dataset index omits outside, dangling and unreadable
+entries before reporting their metadata; valid in-root aliases keep their logical
+dataset names and timestamps. Relative and symlinked configured roots are
 supported by file reading and dataset listings. Python 3.9 or newer is required.
 
 ## Development
