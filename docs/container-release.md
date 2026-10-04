@@ -17,8 +17,8 @@ pages use the current request-first template API.
 Pull-request CI builds the image without registry credentials and runs:
 
 ```sh
-docker build --platform linux/amd64 -t brds:container-test -f Containerfile .
-python3 scripts/check_container.py brds:container-test
+docker build --platform linux/amd64 -t brds:release-test -f Containerfile .
+python3 scripts/check_container.py brds:release-test
 ```
 
 The check writes synthetic Parquet and JSON inside a temporary mounted store,
@@ -40,13 +40,65 @@ receipt also records its image ID.
 The publication chain is **validation → GitHub release → PyPI → Docker Hub**.
 A failed/skipped upstream job blocks subsequent publication. The PyPI job
 verifies and uploads the saved distributions. Only after it succeeds does the
-Docker job verify the archive and image ID, load it, and tag/push that same
-image. Neither publication job rebuilds. Artifact downloads use IDs returned by the successful validation job within
+Docker job verify the archive and image ID, load it, and push that same
+image under its version tag. A separate serialized job then considers `latest`.
+No publication or promotion job rebuilds. Artifact downloads use IDs returned by the successful validation job within
 the same workflow run. Upload names include the run attempt, so rerunning
 validation produces fresh artifacts and a publication-only retry reuses its
 validated upstream IDs. Artifacts are retained for seven days; after expiry a new
 validation run is needed. A partial registry failure remains a failed job;
 there is no automatic rollback of a completed GitHub/PyPI publication.
+
+## Version tags, latest and publication receipts
+
+Every successful release publishes its exact package-version Docker tag, including
+older hotfixes and prereleases. Only canonical stable `MAJOR.MINOR.PATCH` versions
+can advance `latest`. Numeric comparison against the version of the image actually
+published as `latest` prevents an older hotfix or a slower release job from rolling
+it backwards. Prereleases and other version spellings retain their version tag
+without changing `latest`. An equal version/digest is an idempotent no-op; an equal
+version with a different digest fails promotion for inspection.
+
+The promotion job uses a fixed repository-wide concurrency group with
+`cancel-in-progress: false` and `queue: max`. GitHub supports up to 100 pending jobs
+with this setting; arrival order can differ from release order, so serialization
+is combined with the numeric version check. See
+[GitHub's concurrency documentation](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency).
+Versioned publication remains independent of the promotion queue. All publishers
+of this repository's `latest` tag must follow this policy; direct registry writes
+or release tags containing the older workflow do not participate in its lock.
+
+Validation adds OCI version, source and revision labels before testing/saving the
+image. For a legacy `latest` without these labels, promotion creates a stopped
+container, exports its filesystem to a temporary tar, reads the installed BRDS
+package metadata, and removes the container. It never runs that image or extracts
+the tar. Missing, ambiguous or non-stable metadata fails promotion. Only an
+explicit registry missing-manifest response allows first publication; network,
+authentication and rate-limit failures fail closed.
+
+`container-version-receipt-<attempt>` records the source commit, run and attempt,
+validated artifact ID, saved archive checksum, image configuration ID, and the
+registry manifest digest returned by the version push. `container-latest-receipt-<attempt>`
+records the upstream receipt, previous version/digest, decision and, if promoted,
+the resulting digest. Promotion pulls `repository@sha256:...`, checks the validated
+image ID and version, and requires the `latest` push to return that same manifest
+digest. A registry manifest digest is distinct from the local image configuration
+ID. See [Docker's push reference](https://docs.docker.com/reference/cli/docker/image/push/)
+and [digest pulls](https://docs.docker.com/reference/cli/docker/image/pull/).
+Both receipts appear in the job summary and in seven-day artifacts. Failure
+receipts preserve completed upstream publication; a failed `latest` promotion does
+not undo its version tag or PyPI release. Retry the failed job within artifact
+retention after fixing the cause. Review and retain the receipts before expiry
+when longer-lived release evidence is needed.
+
+Actions in both CI workflows are pinned to the exact official commit of each
+previously selected version; adjacent comments retain the version names. Update
+pins deliberately and verify their official tag-to-commit references when changing
+versions. These changes apply to future release tags created from the updated
+workflow. Before releasing, confirm no older-workflow tag publication is still
+running, and carry the updated workflow into maintained hotfix branches before
+creating their next release tags. Do not move existing release tags to activate
+this policy.
 
 ## Dependency inputs
 
